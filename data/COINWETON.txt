@@ -1,0 +1,86 @@
+COINWETON
+
+Overview: 
+
+Pilar 1: ARSITEKTUR DAN TEKNOLOGI
+Framework Utama: Next.js 14/15 (App Router) menggunakan React Server Components.
+Bahasa: TypeScript (Wajib untuk vibe coding agar AI akurat).
+Styling & UI: Tailwind CSS dipadukan dengan Shadcn UI dan Lucide Icons.
+Database & Auth: Supabase (PostgreSQL) dan Drizzle ORM.
+Data Fetching Strategy: Menggunakan Incremental Static Regeneration (ISR) di Next.js untuk melakukan caching respons API agar tidak terkena rate limit dan web tetap memuat dengan instan.
+
+PILAR 2: INTEGRASI DATA DAN FITUR
+A. API Strategy (Multi-Source)
+CoinGecko API (Free): Sumber utama untuk daftar koin, harga, metrik fundamental, data grafik, dan deskripsi koin.
+CryptoPanic API (Free): Sumber untuk agregasi berita kripto global dan spesifik koin.
+LLM API (Opsional: Groq/Gemini/Claude): Sebagai otak untuk fitur "Ask AI" yang interaktif.
+
+B. Core UI & Features Layout
+Navbar (Dua Tingkat):
+Top Tier: Data statis pasar (Market cap, 24h Vol, Dominance).
+Bottom Tier: Kiri (Logo), Tengah (Kosong), Kanan (Search Bar, Ikon Watchlist, Tombol Auth).
+Main Page Highlights: 3 Card berjajar (Global Market Chart, Trending Coins, Top Gainers).
+Main Coin List: Tabel maksimal 20 koin per halaman dengan sorting. Kolom mencakup Star (Watchlist), #, Coin, Harga, 1h%, 24h%, Market Cap, Volume.
+Global News Section: Grid card berita kripto terbaru di bawah tabel koin.
+Footer: Elemen standar di paling bawah.
+
+C. Coin Detail Page (CMC Layout Configuration)
+Top: Navbar standar.
+
+Left Sidebar: * Coin Fundamentals: Harga raksasa, Market Cap, Volume, Circulating/Total Supply, FDV, Contract Address.
+Price Performance: Statistik ATH, ATL, dan rentang Harga 24 Jam.
+
+Right/Main Content:
+Top: Grafik Harga Interaktif (Lightweight Charts).
+Middle 1: Panel "Ask AI" dengan suggestion buttons (membuka pop-up jawaban AI).
+Middle 2: Coin Specific News (Berita yang hanya relevan dengan koin terkait).
+Bottom 1: "About Section" (Deskripsi sejarah dan fungsi koin).
+Bottom 2: "People Also Watch" (Menampilkan deretan koin trending sebagai rekomendasi).
+
+PILAR 3: UI/UX dan DESAIN DATABASE
+Tema UI/UX (Soft Dark Mode): Kita tinggalkan hitam pekat dan beralih ke warna gelap yang lebih lembut (Tailwind bg-slate-900 atau bg-gray-900 seperti #111827).
+
+Tipografi: Menggunakan font Inter (bisa di-import langsung dari next/font/google). Font ini adalah standar industri yang sangat mirip dengan yang dipakai CoinGecko, terlihat sangat rapi untuk angka dan teks kecil. Tetap gunakan tabular-nums untuk kolom harga.
+
+Database & ORM: Supabase untuk autentikasi dan penyimpanan, dieksekusi dengan Drizzle ORM. Skema dibuat sangat minimalis: hanya menyimpan relasi user_id dan coin_id (ID dari CoinGecko) ke dalam tabel watchlists. Data harga koin tidak disimpan di database kita.
+
+PILAR 4: FITUR INOVATIF
+Bagian ini berisi instruksi teknis detail untuk dua fitur utama yang akan mendongkrak poin fungsionalitas dan kreativitas.
+
+1. "Ask AI" - Contextual Crypto Analyst
+
+Fungsi: Asisten AI interaktif berbentuk Sheet (muncul dari sisi kanan layar) di halaman Detail Koin, memungkinkan pengguna bertanya seputar metrik koin tersebut secara spesifik.
+Teknis Eksekusi (Untuk AI Agent): * Gunakan Vercel AI SDK (ai dan @ai-sdk/react).
+Gunakan endpoint /api/chat di Next.js App Router untuk menangani streaming response.
+Mekanisme Injeksi Konteks (Mini-RAG): AI tidak dibiarkan berhalusinasi. Saat user membuka halaman token tertentu (misal: Bitcoin) dan membuka panel AI, sistem di sisi client harus mengambil state data token saat ini (Harga, Market Cap, Volume 24h, dll) dari CoinGecko. Data JSON ini kemudian disuntikkan secara tersembunyi ke dalam System Prompt sebelum dikirim ke LLM (misal menggunakan Groq API atau Gemini).
+Prompt Format: "Kamu adalah analis kripto. Pengguna sedang bertanya tentang token {coinName}. Konteks data saat ini: {coinJSONData}. Jawab pertanyaan dengan singkat, padat, dan berdasarkan data tersebut."
+
+2. Smart Contract Security Badge (Automated Web3 Audit)
+
+Fungsi: Menampilkan skor keamanan dan peringatan kerentanan (vulnerability) secara otomatis untuk setiap token (khusus jaringan EVM seperti ERC-20 atau BSC) di halaman Detail Koin.
+Teknis Eksekusi (Untuk AI Agent):
+Gunakan GoPlus Security API (Token Security API, gratis dan tanpa perlu API Key rumit untuk batas tertentu).
+Ambil contract_address dari respons CoinGecko di halaman detail token. Jika alamat kontrak tersedia dan berada di jaringan yang didukung, lakukan fetch ke endpoint GoPlus.
+Logika Penilaian: Buat fungsi utilitas (utility function) sederhana yang memetakan parameter ancaman level tinggi (yang sering ditemukan di kompetisi audit seperti Immunefi atau Sherlock) menjadi skor visual. Parameter wajib yang diuji:
+is_mintable (Apakah owner bisa mencetak token baru?).
+is_honeypot (Apakah token bisa dibeli tapi tidak bisa dijual?).
+buy_tax & sell_tax (Apakah pajaknya di atas standar wajar?).
+owner_renounce (Apakah kepemilikan kontrak sudah dilepas?).
+Tampilkan hasilnya dalam bentuk Badge (Hijau: Aman, Kuning: Hati-hati, Merah: Bahaya) menggunakan komponen Shadcn UI.
+
+PILAR 5: DEPLOYMENT
+Hosting Frontend & API Routes: Vercel (Free Tier). Sangat cukup untuk kebutuhan lomba. Kuncinya ada di pemanfaatan Incremental Static Regeneration (ISR) agar halaman memuat instan dan tidak menguras limit API.
+
+Hosting Database: Supabase (Free Tier). Skema tabel yang minimalis (hanya menyimpan ID user dan ID koin untuk watchlist) menjamin database tetap ringan dan merespons dengan cepat.
+
+Konfigurasi Wajib (Anti-Lag & Anti-Tidur):
+Setel region server Vercel dan Supabase di lokasi yang sama (wajib Singapura / ap-southeast-1) agar latensi ke juri di Indonesia nyaris nol.
+Mengingat masa seleksi juri berlangsung dari 3 Mei - 14 Mei 2026, rajin-rajin buka dashboard Supabase atau tes fitur login/watchlist setiap 3 hari sekali agar database tidak masuk ke mode Auto-Pause.
+
+Selanjutnya kita akan melakukan perbaikan untuk halaman news.
+
+Pertama saya ingin ada seperti teks bergerak di bagian paling atas yang menunjukkan harga top 5 asset by market cap dan persentase kenaikkannya selama 24h terakhir. Kemudian ada tulisan powered by coinweton, gunakan logo icon.svg dan teks.svg punya kita.
+
+Kemudian untuk sesi 4 berita teratas, di bagian kanan 3 berita masih terlalu kecil ukurannya baik gambar maupun judulnya. Ikuti susunann dari gambar 2, dimana di bagian 3 berita di sisi kanan gambarnya diletakkan di kanan judul, kemudian perbesar ukuran font judul, sumber berita dan waktunya agar memenuhi ruang yang kosong karena saat ini masih terlalu lebar spacing tiap berita di sisi kanan. Kemudian belum ada modals related coin di sisi kanan yang 3 berita, tambahkan.
+
+Buatkan prompt supaya ai saya mengeksekusi semua yang saya inginkan.
