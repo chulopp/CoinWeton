@@ -215,13 +215,11 @@ CoinWeton/
 
 ## 👥 Tim Pengembang
 
-Proyek ini dikembangkan oleh mahasiswa **Universitas Diponegoro** untuk kompetisi **JKBFEST 2026**:
+Proyek ini dikembangkan oleh mahasiswa **Universitas Diponegoro**:
 
 | Nama | Peran |
 |---|---|
 | **Fallah Iqbal Kurnianto** | Lead Developer & System Architect |
-| **Hayfa Danendra** | Developer |
-| **Wendi Adi Ardiansah** | Developer |
 
 ---
 
