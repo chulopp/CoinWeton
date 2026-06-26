@@ -278,6 +278,21 @@ export default function CownAiClient({
       const data = await res.json();
 
       if (!res.ok) {
+        // ── Special handling for 429 Rate Limit ──
+        if (res.status === 429) {
+          const rateLimitMsg =
+            data.error ??
+            "⏳ Saat ini server AI sedang penuh (Rate Limit). Mohon tunggu beberapa saat dan coba lagi.";
+          setDisplayHistory((prev) => [
+            ...prev,
+            {
+              sender: "ai",
+              text: `⏳ ${rateLimitMsg}\n\n_Silakan coba lagi dalam beberapa detik._`,
+            },
+          ]);
+          return; // exit early — don't throw, don't crash
+        }
+
         throw new Error(data.error ?? "Unknown error from AI service.");
       }
 

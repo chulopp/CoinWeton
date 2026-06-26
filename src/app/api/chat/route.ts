@@ -51,6 +51,24 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`OpenRouter API error (${response.status}):`, errorText);
+
+      // ── Handle 429 Rate Limit specifically ──
+      if (response.status === 429) {
+        const retryAfter = response.headers.get("Retry-After") ?? "30";
+        return NextResponse.json(
+          {
+            error:
+              "Saat ini server AI sedang penuh (Rate Limit). Mohon tunggu beberapa saat dan coba lagi.",
+            errorType: "RATE_LIMIT",
+            retryAfter: Number(retryAfter),
+          },
+          {
+            status: 429,
+            headers: { "Retry-After": retryAfter },
+          }
+        );
+      }
+
       return NextResponse.json(
         { error: `AI service error: ${response.status}` },
         { status: 502 }
