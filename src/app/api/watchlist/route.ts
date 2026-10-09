@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { watchlists } from "@/db/schema";
@@ -6,7 +6,6 @@ import {
   getWatchlistSnapshot,
   type WatchlistSnapshot,
 } from "@/lib/market-data";
-import { createClient } from "@/utils/supabase/server";
 
 const EMPTY_WATCHLIST_SNAPSHOT: WatchlistSnapshot = {
   isAuthenticated: false,
@@ -16,13 +15,9 @@ const EMPTY_WATCHLIST_SNAPSHOT: WatchlistSnapshot = {
 };
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await auth();
 
-  if (!user) {
+  if (!session?.user?.id) {
     return Response.json(EMPTY_WATCHLIST_SNAPSHOT, {
       headers: {
         "Cache-Control": "no-store, max-age=0",
@@ -33,7 +28,7 @@ export async function GET() {
   const rows = await db
     .select({ coinId: watchlists.coinId })
     .from(watchlists)
-    .where(eq(watchlists.userId, user.id));
+    .where(eq(watchlists.userId, session.user.id));
 
   const coinIds = rows.map((row) => row.coinId);
 

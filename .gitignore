@@ -65,3 +65,4 @@ skills-lock.json
 
 # test scripts
 test-db.ts
+.neon

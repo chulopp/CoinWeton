@@ -1,31 +1,24 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@/auth";
 import { db } from "@/db";
 import { watchlists } from "@/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-// ── Get current session ────────────────────────────────────────
 export async function getSession() {
   try {
-    const cookieStore = await cookies();
-    const supabase = await createClient(cookieStore);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user;
+    const session = await auth();
+    return session?.user ?? null;
   } catch {
     return null;
   }
 }
 
-// ── Get all watchlisted coin IDs for current user ──────────────
 export async function getUserWatchlist(): Promise<string[]> {
   try {
     const user = await getSession();
-    if (!user) return [];
+    if (!user?.id) return [];
 
     const rows = await db
       .select({ coinId: watchlists.coinId })
@@ -48,30 +41,26 @@ function normalizeCoinIds(coinIds: string[]): string[] {
   );
 }
 
-// ── Toggle watchlist (add/remove) ──────────────────────────────
 export async function toggleWatchlist(
   coinId: string
 ): Promise<{ success: boolean; action?: "added" | "removed"; error?: string }> {
   try {
     const user = await getSession();
-    if (!user) {
+    if (!user?.id) {
       return { success: false, error: "UNAUTHORIZED" };
     }
 
-    // Check if already watchlisted
     const existing = await db.query.watchlists.findFirst({
       where: (wl, { and, eq }) =>
-        and(eq(wl.userId, user.id), eq(wl.coinId, coinId)),
+        and(eq(wl.userId, user.id!), eq(wl.coinId, coinId)),
     });
 
-      if (existing) {
-      // Remove
+    if (existing) {
       await db.delete(watchlists).where(eq(watchlists.id, existing.id));
       revalidatePath("/", "layout");
       revalidatePath("/watchlist", "page");
       return { success: true, action: "removed" };
     } else {
-      // Add
       await db.insert(watchlists).values({
         userId: user.id,
         coinId,
@@ -91,7 +80,7 @@ export async function addWatchlistCoins(
 ): Promise<{ success: boolean; addedCount?: number; error?: string }> {
   try {
     const user = await getSession();
-    if (!user) {
+    if (!user?.id) {
       return { success: false, error: "UNAUTHORIZED" };
     }
 
@@ -119,7 +108,7 @@ export async function addWatchlistCoins(
     if (coinsToInsert.length > 0) {
       await db.insert(watchlists).values(
         coinsToInsert.map((coinId) => ({
-          userId: user.id,
+          userId: user.id!,
           coinId,
         }))
       );
@@ -139,7 +128,7 @@ export async function removeWatchlistCoins(
 ): Promise<{ success: boolean; removedCount?: number; error?: string }> {
   try {
     const user = await getSession();
-    if (!user) {
+    if (!user?.id) {
       return { success: false, error: "UNAUTHORIZED" };
     }
 

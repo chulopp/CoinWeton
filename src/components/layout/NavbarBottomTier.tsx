@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Star, LogIn, UserPlus, Menu, X } from "lucide-react";
@@ -9,27 +9,17 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import LoginModal from "@/components/auth/LoginModal";
 import SearchModal from "./SearchModal";
-import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { useSession, signOut } from "next-auth/react";
 
 export default function NavbarBottomTier() {
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session } = useSession();
+  const user = session?.user ?? null;
   const [loginOpen, setLoginOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const prevUserRef = useRef<User | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, []);
 
   const handleScrollTo = (id: string) => {
     if (pathname !== "/") {
@@ -43,11 +33,8 @@ export default function NavbarBottomTier() {
   };
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
+    await signOut({ callbackUrl: "/" });
     toast.success("Successfully logged out");
-    router.refresh();
   };
 
   return (

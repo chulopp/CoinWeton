@@ -7,9 +7,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { createClient } from "@/utils/supabase/client";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface LoginModalProps {
   open: boolean;
@@ -17,23 +16,14 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ open, onOpenChange }: LoginModalProps) {
-  const router = useRouter();
-
   const handleGoogleLogin = async () => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] border-slate-700/50 bg-slate-900">
         <DialogHeader className="items-center text-center">
-          {/* Logo */}
           <div className="flex items-center justify-center gap-1 mb-2">
             <img src="/icon.svg" alt="CoinWeton" className="h-10 w-auto relative z-10" />
             <img src="/text5.svg" alt="CoinWeton" className="h-7 w-auto block translate-y-[3px]" />
@@ -47,12 +37,10 @@ export default function LoginModal({ open, onOpenChange }: LoginModalProps) {
         </DialogHeader>
 
         <div className="mt-2 flex flex-col gap-3">
-          {/* Continue with Google Button */}
           <button
             onClick={handleGoogleLogin}
             className="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-600/50 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition-all hover:bg-slate-100 active:scale-[0.98]"
           >
-            {/* Google Icon */}
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -74,7 +62,6 @@ export default function LoginModal({ open, onOpenChange }: LoginModalProps) {
             Continue with Google
           </button>
 
-          {/* Divider */}
           <div className="relative my-1">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-700/50" />
@@ -86,7 +73,6 @@ export default function LoginModal({ open, onOpenChange }: LoginModalProps) {
             </div>
           </div>
 
-          {/* Terms */}
           <p className="text-center text-[11px] leading-relaxed text-slate-500">
             By continuing, you agree to CoinWeton&apos;s{" "}
             <Link href="/terms" className="text-cyan-400 hover:underline">
