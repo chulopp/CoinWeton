@@ -195,14 +195,6 @@ CoinWeton/
 └── tsconfig.json               # TypeScript compiler options
 ```
 
-## Development Team
-
-This platform is developed and maintained by the CoinWeton Development Team.
-
-| Role | Responsibility |
-|---|---|
-| **CoinWeton Development Team** | Architecture, Full-Stack Engineering, and Security Integration |
-
 ## License and Acknowledgments
 
 This project is licensed under the MIT License.
@@ -217,6 +209,3 @@ Data and infrastructure providers supporting the platform:
   <img src="https://img.shields.io/badge/Neon-00E5FF?style=flat&logo=postgresql&logoColor=black" alt="Neon" height="24" />
 </p>
 
-<p align="center">
-  <em>Maintained by the CoinWeton Development Team</em>
-</p>
