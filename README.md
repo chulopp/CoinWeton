@@ -3,90 +3,85 @@
 </p>
 
 <h1 align="center">COINWETON</h1>
-<p align="center"><strong>Smart Crypto Tracker & AI Assistant</strong></p>
+<p align="center"><strong>Smart Crypto Tracker and AI Assistant</strong></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Supabase-Database_&_Auth-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Neon-PostgreSQL-00E5FF?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon Postgres" />
+  <img src="https://img.shields.io/badge/Auth.js-NextAuth-black?style=for-the-badge&logo=nextauth&logoColor=white" alt="Auth.js" />
   <img src="https://img.shields.io/badge/Drizzle_ORM-PostgreSQL-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle ORM" />
 </p>
 
----
+## About the Project
 
-## 📌 Tentang Proyek
+COINWETON is a web-based crypto intelligence platform built to tackle market volatility and information asymmetry in digital asset investing. Retail investors often face high market risks, misinformation, and emotional decision-making such as FOMO. COINWETON provides structured, real-time market data alongside automated security vetting, enabling users to make informed, data-driven decisions.
 
-**COINWETON** adalah platform pelacak pasar kripto (*crypto market tracker*) berbasis web yang dirancang sebagai solusi inovatif untuk mengatasi **krisis literasi keuangan digital di Indonesia**, khususnya fenomena *Fear of Missing Out* (FOMO) dan penyalahgunaan pinjaman online (*pinjol*) yang kerap menimpa investor kripto pemula. Dengan menyajikan data pasar secara transparan, terkurasi, dan mudah dipahami, COINWETON bertujuan memberdayakan pengguna agar mampu mengambil keputusan investasi berbasis data (*data-driven decision making*), bukan emosi. Proyek ini secara langsung mendukung pencapaian **Sustainable Development Goals (SDGs) ke-8: *Decent Work and Economic Growth***, melalui peningkatan literasi finansial dan inklusi ekonomi digital.
+Beyond standard price monitoring, COINWETON integrates an automated smart contract security audit engine to detect honeypots and malicious contracts before users interact with them. It also features Cown AI, a contextual assistant designed to interpret real-time market metrics and contract safety data on demand.
 
-Lebih dari sekadar *price tracker* konvensional, COINWETON mengintegrasikan **asisten AI kontekstual (Cown AI)** yang mampu menganalisis data pasar secara *real-time*, serta menyediakan fitur **audit keamanan *smart contract* otomatis** untuk mendeteksi potensi penipuan (*scam/honeypot*). Kombinasi fitur unggulan ini menjadikan COINWETON sebuah terminal data kripto yang komprehensif, dirancang tidak hanya untuk menyajikan informasi, melainkan untuk **menginterpretasikannya** bagi pengguna.
+## Key Features
 
----
+### Real-Time Market Dashboard
+The main dashboard delivers live global cryptocurrency metrics, including prices, 24-hour trading volumes, market capitalization, Bitcoin dominance, and market sentiment tracking through the Fear and Greed Index. The layout is optimized for desktop and mobile workflows with a dark interface.
 
-## ✨ Fitur Unggulan
+### Dual-Chart System
+Visual data inspection uses two dedicated charting implementations:
+* **Recharts**: Custom sparkline visualizations on the dashboard for rapid trend assessment across coin lists.
+* **TradingView**: Interactive technical analysis widgets on individual coin pages supporting multiple intervals (1H, 24H, 7D, 30D, and 1Y).
 
-### 📊 Real-Time Market Dashboard
-Dasbor utama menampilkan data pasar kripto global secara *real-time*, meliputi harga, kapitalisasi pasar, volume perdagangan 24 jam, dominasi Bitcoin, serta integrasi **Fear & Greed Index** untuk mengukur sentimen pasar terkini. Data disajikan dalam antarmuka *dark mode* yang profesional dan nyaman untuk penggunaan jangka panjang.
+### Smart Contract Security Audit
+Automated token risk inspection is powered by GoPlus Security API. Every EVM-compatible token (Ethereum, BNB Chain, Polygon, and others) is screened for:
+* **Honeypot Verification**: Validates whether token sell transactions are blocked or restricted.
+* **Mint Functions**: Checks if the contract owner can arbitrarily inflate token supply.
+* **Buy and Sell Taxes**: Detects hidden slippage fees or extortionate tax rates.
+* **Ownership Status**: Evaluates ownership renunciation and administrative privilege controls.
 
-### 📈 Dual-Chart System
-Sistem visualisasi data ganda yang mengintegrasikan dua *engine* grafik berbeda:
-- **Recharts** - Grafik sparkline kustom untuk analisis tren cepat di halaman utama.
-- **TradingView** - Grafik interaktif profesional di halaman detail koin untuk analisis teknikal mendalam, mendukung *timeframe* 1H, 24H, 7D, 30D, hingga 1 tahun.
+Audit outputs are summarized with visual risk indicators: SAFE, CAUTION, or DANGER.
 
-### 🛡️ Smart Contract Security Audit
-Fitur deteksi *scam* dan *honeypot* otomatis yang memanfaatkan **GoPlus Security API**. Setiap token berbasis EVM (Ethereum, BSC, Polygon, dll.) diaudit secara otomatis untuk memeriksa:
-- Status **Honeypot** (apakah token dapat dijual kembali)
-- Fungsi **Mint** (risiko inflasi tak terbatas)
-- **Buy/Sell Tax** (biaya tersembunyi)
-- Status **Owner Renounced** (desentralisasi kontrak)
+### Cown AI Contextual Assistant
+An integrated AI assistant built on a two-tier Retrieval-Augmented Generation (RAG) structure:
+* **Macro Context**: Gathers overall market trends, market cap shifts, and global news sentiment.
+* **Micro Context**: Pulls coin-specific telemetry, fundamental statistics, and smart contract audit outputs.
 
-Hasil audit ditampilkan sebagai *badge* visual dengan level risiko: `SAFE`, `CAUTION`, atau `DANGER`.
+This context grounding keeps responses anchored in live data and prevents hallucinations during technical queries.
 
-### 🤖 Cown AI - RAG-Based AI Assistant
-Asisten AI cerdas yang ditenagai oleh arsitektur **Retrieval-Augmented Generation (RAG)** dengan dua tingkat konteks:
-- **Macro RAG** - Menganalisis lanskap pasar global: Fear & Greed Index, tren kapitalisasi pasar, dan sentimen berita utama.
-- **Micro RAG** - Mendalami data spesifik per koin: harga terkini, metrik fundamental, dan hasil audit keamanan kontrak.
+### Cloud Watchlist and Authentication
+A persistent watchlist lets users track target assets across sessions. The authentication system uses Google OAuth integrated with Auth.js, storing watchlist references directly in a serverless PostgreSQL database.
 
-Cown AI tidak hanya menjawab pertanyaan umum, melainkan memberikan analisis yang **dikontekstualisasikan** (*grounded*) dengan data pasar *real-time*, sehingga meminimalkan risiko halusinasi (*hallucination*).
+## Architecture and Stack
 
-### ⭐ Watchlist & Autentikasi
-Sistem *watchlist* personal yang memungkinkan pengguna menyimpan koin favorit lintas perangkat, didukung oleh autentikasi **Google OAuth** melalui Supabase Auth.
+### Core Technologies
 
----
-
-## 🏗️ Arsitektur & Teknologi
-
-### Tech Stack Utama
-
-| Kategori | Teknologi | Keterangan |
+| Category | Technology | Details |
 |---|---|---|
-| **Framework** | Next.js 16 (App Router) | React Server Components & Server Actions |
-| **Bahasa** | TypeScript 5 | *Strict mode* untuk keamanan tipe data |
-| **Styling** | Tailwind CSS 4 | Utility-first CSS framework |
-| **UI Library** | Shadcn UI + Lucide Icons | Komponen UI *headless* yang dapat dikustomisasi |
-| **Database** | PostgreSQL via Supabase | Region: `ap-southeast-1` (Singapore) |
-| **ORM** | Drizzle ORM | *Type-safe* query builder untuk PostgreSQL |
-| **Autentikasi** | Supabase Auth + `@supabase/ssr` | Google OAuth, session management |
-| **State Management** | SWR | *Client-side* data fetching & caching |
-| **Charts** | Recharts + TradingView Widget | Dual-chart rendering system |
+| **Framework** | Next.js 16 (App Router) | React Server Components and Server Actions |
+| **Language** | TypeScript 5 | Strict type checking across client and server |
+| **Styling** | Tailwind CSS 4 | Utility styling and responsive design |
+| **UI Components** | Shadcn UI and Lucide Icons | Headless component primitives |
+| **Database** | Neon Serverless PostgreSQL | Serverless connection pooling |
+| **ORM** | Drizzle ORM | Type-safe PostgreSQL schema and queries |
+| **Authentication** | Auth.js (NextAuth v5) | Google OAuth with stateless JWT sessions |
+| **State and Cache** | SWR | Client-side revalidation and caching |
+| **Charts** | Recharts and TradingView | Dual-chart visualization system |
 
-### Integrasi API Pihak Ketiga
+### External API Integrations
 
-| Layanan | Fungsi | Tipe |
+| Provider | Purpose | Protocol |
 |---|---|---|
-| **CoinGecko API** | Data pasar kripto *real-time* (harga, volume, kapitalisasi) | REST API |
-| **GoPlus Security API** | Audit keamanan *smart contract* EVM | REST API |
-| **OpenRouter** | Gateway ke model LLM untuk Cown AI | REST API |
-| **NewsData API** | Agregasi berita kripto global | REST API |
+| **CoinGecko API** | Real-time prices, volume, and market rankings | REST API |
+| **GoPlus Security API** | Automated EVM smart contract risk screening | REST API |
+| **OpenRouter** | LLM gateway powering Cown AI | REST API |
+| **NewsData API** | Global cryptocurrency news aggregation | REST API |
 
-### Diagram Arsitektur Tingkat Tinggi
+### High-Level Architecture Diagram
 
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                     CLIENT (Browser)                      │
-│          Next.js App Router — RSC + Client Components     │
+│          Next.js App Router: RSC + Client Components     │
 │  ┌───────────┐  ┌──────────────┐  ┌──────────────────┐  │
-│  │ Dashboard  │  │ Coin Detail  │  │ Cown AI Terminal │  │
+│  │ Dashboard │  │ Coin Detail  │  │ Cown AI Terminal │  │
 │  └───────────┘  └──────────────┘  └──────────────────┘  │
 └────────────────────────┬─────────────────────────────────┘
                          │ HTTP / Server Actions
@@ -98,147 +93,130 @@ Sistem *watchlist* personal yang memungkinkan pengguna menyimpan koin favorit li
 │  /api/news       → NewsData         (ISR cache 300s)     │
 │  /api/chat       → OpenRouter LLM   (Streaming POST)     │
 │  /api/highlights → CoinGecko        (ISR cache 120s)     │
-│  /api/watchlist  → Drizzle ORM      (Auth required)      │
+│  /api/watchlist  → Drizzle ORM      (Session verified)   │
 │                                                           │
 │  ┌─────────────────┐    ┌────────────────────────────┐   │
-│  │   Drizzle ORM   │    │   Supabase Auth (SSR)      │   │
+│  │   Drizzle ORM   │    │     Auth.js (NextAuth)     │   │
 │  └────────┬────────┘    └──────────────┬─────────────┘   │
 └───────────┼────────────────────────────┼─────────────────┘
             │                            │
 ┌───────────▼────────────────────────────▼─────────────────┐
-│              SUPABASE (ap-southeast-1, Singapore)         │
-│          PostgreSQL: users, watchlists (RLS enabled)      │
+│              NEON SERVERLESS POSTGRESQL                  │
+│          Tables: users, watchlists (pooled)              │
 └──────────────────────────────────────────────────────────┘
 ```
 
----
+## Getting Started
 
-## 🚀 Panduan Instalasi Lokal 
+Follow these steps to run the application in a local development environment.
 
-Panduan berikut ditujukan bagi dewan juri atau pihak lain yang ingin menjalankan aplikasi COINWETON di perangkat lokal.
+### Prerequisites
 
-### Prasyarat
+* Node.js version 18.0 or higher
+* npm (bundled with Node.js)
+* Git
 
-- **Node.js** versi 18.0 atau lebih tinggi - [Unduh di sini](https://nodejs.org/)
-- **npm** (tersedia otomatis bersama instalasi Node.js)
-- **Git** - [Unduh di sini](https://git-scm.com/)
+### Installation Steps
 
-### Langkah-Langkah Instalasi
-
-**1. Clone repositori**
+1. Clone the repository:
 ```bash
 git clone https://github.com/chulopp/CoinWeton.git
 cd CoinWeton
 ```
 
-**2. Instal dependensi**
+2. Install project dependencies:
 ```bash
 npm install
 ```
 
-**3. Konfigurasi *Environment Variables***
-
-Salin file template konfigurasi, lalu isi dengan kunci API yang diperlukan:
-
+3. Configure environment variables:
+Copy the environment template file:
 ```bash
 cp .env.example .env.local
 ```
 
-Buka file `.env.local` dan lengkapi setiap variabel sesuai petunjuk di dalamnya. Berikut keterangan singkat untuk setiap variabel:
+Populate the required credentials in `.env.local`:
 
-| Variabel | Sumber | Keterangan |
+| Variable | Provider | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | [Supabase Dashboard](https://supabase.com) | URL proyek Supabase |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase Dashboard | *Anon/public key* |
-| `DATABASE_URL` | Supabase Dashboard | Connection string (port 6543, *transaction mode*) |
-| `DIRECT_URL` | Supabase Dashboard | Connection string (port 5432, *direct*) |
-| `COINGECKO_API_KEY` | [CoinGecko](https://www.coingecko.com/en/api) | API key (free tier) |
-| `NEWSDATA_API_KEY` | [NewsData.io](https://newsdata.io/) | API key untuk berita |
-| `GOPLUS_API_BASE` | - | `https://api.gopluslabs.io/api/v1` |
-| `OPENROUTER_API_KEY` | [OpenRouter](https://openrouter.ai/) | API key untuk Cown AI |
-| `CLIENT_ID` / `CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/) | OAuth 2.0 credentials |
+| `DATABASE_URL` | Neon Console | Pooled PostgreSQL connection string |
+| `AUTH_SECRET` | Auth.js | Session encryption secret |
+| `AUTH_GOOGLE_ID` | Google Cloud Console | OAuth 2.0 Client ID |
+| `AUTH_GOOGLE_SECRET` | Google Cloud Console | OAuth 2.0 Client Secret |
+| `COINGECKO_API_KEY` | CoinGecko | Market data access |
+| `NEWSDATA_API_KEY` | NewsData.io | Crypto news feed |
+| `GOPLUS_API_BASE` | GoPlus Security | Contract audit endpoint |
+| `OPENROUTER_API_KEY` | OpenRouter | AI model completions |
 
-**4. Jalankan *development server***
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-**5. Akses aplikasi**
+5. Open the application:
+Visit `http://localhost:3000` in your browser.
 
-Buka browser dan navigasi ke alamat berikut:
-```
-http://localhost:3000
-```
+Active internet connectivity is required to fetch real-time feeds from CoinGecko, GoPlus, and OpenRouter.
 
-> **Catatan:** Pastikan koneksi internet aktif, karena aplikasi membutuhkan akses ke API eksternal (CoinGecko, GoPlus, OpenRouter) untuk menampilkan data secara *real-time*.
-
----
-
-## 📂 Struktur Proyek
+## Project Structure
 
 ```
 CoinWeton/
 ├── src/
-│   ├── app/                    # Next.js App Router (pages & API routes)
-│   │   ├── api/                # Server-side API proxy routes
-│   │   │   ├── chat/           # Cown AI endpoint (OpenRouter)
-│   │   │   ├── coins/          # CoinGecko market data proxy
-│   │   │   ├── highlights/     # Trending & gainers data
-│   │   │   ├── market/         # Global market statistics
+│   ├── app/                    # Next.js App Router (pages and API routes)
+│   │   ├── api/                # Backend API proxy handlers
+│   │   │   ├── chat/           # Cown AI completion endpoint
+│   │   │   ├── coins/          # CoinGecko market proxy
+│   │   │   ├── highlights/     # Trending and gainer feeds
+│   │   │   ├── market/         # Global market overview
 │   │   │   ├── news/           # NewsData aggregation
-│   │   │   ├── search/         # Coin search endpoint
-│   │   │   └── watchlist/      # CRUD watchlist (auth required)
-│   │   ├── coins/[id]/         # Halaman detail koin (dynamic route)
-│   │   ├── cown-ai/            # Halaman terminal Cown AI
-│   │   ├── watchlist/          # Halaman watchlist pengguna
-│   │   └── page.tsx            # Halaman utama (dashboard)
-│   ├── components/             # Komponen UI React
-│   │   ├── coin-detail/        # Komponen detail koin & chart
-│   │   ├── highlights/         # Kartu trending, gainers, Fear & Greed
-│   │   ├── layout/             # Navbar, Footer
-│   │   ├── market/             # Tabel pasar utama
-│   │   └── ui/                 # Shadcn UI base components
-│   ├── db/                     # Drizzle ORM schema & connection
-│   ├── lib/                    # Utility & data fetching functions
-│   └── utils/                  # Supabase client utilities
+│   │   │   ├── search/         # Coin search query handler
+│   │   │   └── watchlist/      # Watchlist persistence routes
+│   │   ├── coins/[id]/         # Coin detail view and TradingView chart
+│   │   ├── cown-ai/            # Interactive Cown AI terminal
+│   │   ├── watchlist/          # User watchlist view
+│   │   └── page.tsx            # Main dashboard overview
+│   ├── components/             # React UI components
+│   │   ├── coin-detail/        # Coin metrics and chart modules
+│   │   ├── highlights/         # Market sentiment and top movers
+│   │   ├── layout/             # Navigation bars and footer
+│   │   ├── market/             # Primary market table
+│   │   └── ui/                 # Base component primitives
+│   ├── db/                     # Drizzle ORM schema and database client
+│   ├── lib/                    # Data fetchers and helper utilities
+│   └── utils/                  # Shared helper functions
 ├── drizzle/                    # Database migration files
-├── data/                       # Dokumentasi internal (PRD, user flows)
-├── public/                     # Aset statis (logo, ikon)
-├── .env.example                # Template environment variables
-├── drizzle.config.ts           # Konfigurasi Drizzle ORM
-├── next.config.ts              # Konfigurasi Next.js
-├── package.json                # Dependensi & scripts
-└── tsconfig.json               # Konfigurasi TypeScript
+├── data/                       # Product requirements and documentation
+├── public/                     # Static media and branding assets
+├── .env.example                # Environment configuration template
+├── drizzle.config.ts           # Drizzle ORM configuration
+├── next.config.ts              # Next.js configuration
+├── package.json                # Project dependencies and npm scripts
+└── tsconfig.json               # TypeScript compiler options
 ```
 
----
+## Development Team
 
-## 👥 Tim Pengembang
+This platform is developed and maintained by the CoinWeton Development Team.
 
-Proyek ini dikembangkan oleh mahasiswa **Universitas Diponegoro**:
-
-| Nama | Peran |
+| Role | Responsibility |
 |---|---|
-| **Fallah Iqbal Kurnianto** | Lead Developer & System Architect |
+| **CoinWeton Development Team** | Architecture, Full-Stack Engineering, and Security Integration |
 
----
+## License and Acknowledgments
 
-## 📜 Lisensi & Pengakuan
+This project is licensed under the MIT License.
 
-Proyek ini dilisensikan di bawah **MIT License**.
-
-Terima kasih kepada penyedia infrastruktur data yang mendukung platform ini:
+Data and infrastructure providers supporting the platform:
 
 <p align="center">
-  <img src="./public/coingecko-logo.svg" alt="CoinGecko" height="28" />&nbsp;&nbsp;&nbsp;
-  <img src="./public/goplus1.svg" alt="GoPlus Security" height="28" />&nbsp;&nbsp;&nbsp;
-  <strong>OpenRouter</strong>&nbsp;&nbsp;&nbsp;
-  <strong>NewsData.io</strong>&nbsp;&nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat&logo=supabase&logoColor=white" alt="Supabase" height="22" />
+  <img src="./public/coingecko-logo.svg" alt="CoinGecko" height="28" />
+  <img src="./public/goplus1.svg" alt="GoPlus Security" height="28" />
+  <img src="https://img.shields.io/badge/OpenRouter-API-blue?style=flat" alt="OpenRouter" height="24" />
+  <img src="https://img.shields.io/badge/NewsData.io-News-orange?style=flat" alt="NewsData" height="24" />
+  <img src="https://img.shields.io/badge/Neon-00E5FF?style=flat&logo=postgresql&logoColor=black" alt="Neon" height="24" />
 </p>
 
----
-
 <p align="center">
-  <em>Dibangun dengan ❤️ dari Universitas Diponegoro</em>
+  <em>Maintained by the CoinWeton Development Team</em>
 </p>
