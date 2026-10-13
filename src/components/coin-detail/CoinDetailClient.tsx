@@ -119,6 +119,7 @@ export default function CoinDetailClient({
                 key={coin.tradingViewSymbol || coin.id} 
                 tradingViewSymbol={coin.tradingViewSymbol} 
                 coinId={coin.id}
+                coinSymbol={coin.symbol}
               />
             </div>
 

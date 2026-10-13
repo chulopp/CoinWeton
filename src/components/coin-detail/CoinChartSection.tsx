@@ -13,16 +13,30 @@ declare global {
   }
 }
 
-function getTradingViewSymbol(coinSymbol?: string | null): string {
-  return coinSymbol?.trim() || "BINANCE:BTCUSDT";
+function getTradingViewSymbol(
+  tradingViewSymbol?: string | null,
+  coinSymbol?: string | null
+): string {
+  if (tradingViewSymbol && tradingViewSymbol.trim().length > 0) {
+    return tradingViewSymbol.trim();
+  }
+  if (coinSymbol && coinSymbol.trim().length > 0) {
+    const clean = coinSymbol.toUpperCase().trim();
+    if (clean === "USDT") return "COINBASE:USDTUSD";
+    if (clean === "USDC") return "BINANCE:USDCUSDT";
+    return `BINANCE:${clean}USDT`;
+  }
+  return "BINANCE:BTCUSDT";
 }
 
 export default function CoinChartSection({
   tradingViewSymbol,
   coinId,
+  coinSymbol,
 }: {
   tradingViewSymbol?: string | null;
   coinId: string;
+  coinSymbol?: string | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scriptLoadedRef = useRef(false);
@@ -33,7 +47,10 @@ export default function CoinChartSection({
   const [interval, setIntervalState] = useState("D");
   const [tvTimeframe, setTvTimeframe] = useState("1M");
   
-  const resolvedTradingViewSymbol = getTradingViewSymbol(tradingViewSymbol);
+  const resolvedTradingViewSymbol = getTradingViewSymbol(
+    tradingViewSymbol,
+    coinSymbol
+  );
 
   const handleTvTimeframeClick = (tf: string) => {
     setTvTimeframe(tf);

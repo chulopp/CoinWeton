@@ -409,60 +409,76 @@ function toNonEmptyString(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-const EXCHANGE_TV_CODES: Record<string, string> = {
-  "gdax": "COINBASE",
-  "binance": "BINANCE",
-  "mexc": "MEXC",
-  "bybit_spot": "BYBIT",
-  "okex": "OKX",
-  "kucoin": "KUCOIN",
-  "kraken": "KRAKEN",
-  "bitfinex": "BITFINEX",
-  "bittrex": "BITTREX",
-  "upbit": "UPBIT",
-  "huobi": "HUOBI",
-  "gate": "GATEIO",
-  "deribit": "DERIBIT"
-};
+const PREFERRED_TV_EXCHANGES = [
+  { id: "binance", tv: "BINANCE" },
+  { id: "bybit_spot", tv: "BYBIT" },
+  { id: "gdax", tv: "COINBASE" },
+  { id: "coinbase", tv: "COINBASE" },
+  { id: "okex", tv: "OKX" },
+  { id: "kucoin", tv: "KUCOIN" },
+  { id: "kraken", tv: "KRAKEN" },
+  { id: "gate", tv: "GATEIO" },
+  { id: "mexc", tv: "MEXC" },
+  { id: "bitfinex", tv: "BITFINEX" },
+  { id: "bitstamp", tv: "BITSTAMP" },
+];
 
 function getTradingViewSymbolFromTickers(
   tickers: CoinGeckoCoinDetailResponse["tickers"],
   coinSymbol?: string | null
 ): string | null {
   const safeTickers = tickers ?? [];
-  if (safeTickers.length === 0) {
-    return coinSymbol ? `CRYPTO:${coinSymbol.toUpperCase()}USD` : null;
+  const cleanSymbol = coinSymbol ? coinSymbol.toUpperCase().trim() : null;
+
+  // Handle common stablecoins explicitly for highest accuracy
+  if (cleanSymbol === "USDT") {
+    return "COINBASE:USDTUSD";
+  }
+  if (cleanSymbol === "USDC") {
+    return "BINANCE:USDCUSDT";
   }
 
-  // 1. Get the very first ticker from data.tickers
-  const firstTicker = safeTickers[0];
+  if (safeTickers.length > 0) {
+    // 1. Prioritize trusted major exchanges with USDT or USD target
+    for (const pref of PREFERRED_TV_EXCHANGES) {
+      const match = safeTickers.find((t) => {
+        const marketId = t.market?.identifier?.toLowerCase();
+        const base = t.base?.toUpperCase();
+        const target = t.target?.toUpperCase();
+        return (
+          marketId === pref.id &&
+          (base === cleanSymbol || !cleanSymbol || (base !== undefined && base.length <= 10)) &&
+          (target === "USDT" || target === "USD")
+        );
+      });
 
-  // 2. Extract marketId, base, and target
-  const marketId = firstTicker.market?.identifier?.toLowerCase() || null;
-  const base = firstTicker.base?.toUpperCase() || coinSymbol?.toUpperCase() || null;
-  let target = firstTicker.target?.toUpperCase() || "USD";
+      if (match) {
+        const base = cleanSymbol || match.base?.toUpperCase();
+        const target = match.target?.toUpperCase() || "USDT";
+        return `${pref.tv}:${base}${target}`;
+      }
+    }
 
-  if (!base) {
-    return null;
-  }
-
-  // 5. Handle Fallbacks: Use USDT or USD pairs if USDC is requested
-  if (target === "USDC") {
-    target = "USDT";
-  }
-
-  // 3. Construct the Exchange Prefix
-  let exchangePrefix = "CRYPTO";
-  if (marketId) {
-    if (EXCHANGE_TV_CODES[marketId]) {
-      exchangePrefix = EXCHANGE_TV_CODES[marketId];
-    } else {
-      exchangePrefix = marketId.toUpperCase();
+    // 2. Fallback to any ticker from trusted major exchanges
+    for (const pref of PREFERRED_TV_EXCHANGES) {
+      const match = safeTickers.find(
+        (t) => t.market?.identifier?.toLowerCase() === pref.id
+      );
+      if (match) {
+        const base = cleanSymbol || match.base?.toUpperCase();
+        let target = match.target?.toUpperCase() || "USDT";
+        if (target === "USDC") target = "USDT";
+        return `${pref.tv}:${base}${target}`;
+      }
     }
   }
 
-  // 4. Construct the TradingView symbol string
-  return `${exchangePrefix}:${base}${target}`;
+  // 3. Fallback: default to BINANCE standard pair if symbol is available
+  if (cleanSymbol) {
+    return `BINANCE:${cleanSymbol}USDT`;
+  }
+
+  return "BINANCE:BTCUSDT";
 }
 
 export function getFearAndGreedLabel(value: number | null): string {
