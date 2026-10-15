@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -10,22 +10,53 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import LoginModal from "@/components/auth/LoginModal";
 import SearchModal from "./SearchModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useSession, signOut } from "next-auth/react";
 
 export default function NavbarBottomTier() {
   const { data: session } = useSession();
   const user = session?.user ?? null;
   const [loginOpen, setLoginOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [navBottom, setNavBottom] = useState(0);
+  const navRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const updateNavBottom = () => {
+      if (navRef.current) {
+        setNavBottom(navRef.current.getBoundingClientRect().bottom);
+      }
+    };
+    updateNavBottom();
+    window.addEventListener("resize", updateNavBottom);
+    window.addEventListener("scroll", updateNavBottom);
+    return () => {
+      window.removeEventListener("resize", updateNavBottom);
+      window.removeEventListener("scroll", updateNavBottom);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (mobileMenuOpen && navRef.current) {
+      setNavBottom(navRef.current.getBoundingClientRect().bottom);
+    }
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -65,22 +96,23 @@ export default function NavbarBottomTier() {
   };
 
   const handleLogout = async () => {
+    setLogoutConfirmOpen(false);
     await signOut({ callbackUrl: "/" });
     toast.success("Successfully logged out");
   };
 
   return (
     <>
-      <div className="w-full border-b border-border/50 bg-background/90 backdrop-blur-md">
+      <div ref={navRef} className="w-full border-b border-border/50 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex w-full items-center justify-between px-2 md:px-4 py-3">
           <div className="flex items-center gap-3 md:gap-8">
-            {/* Hamburger Menu Button (mobile only) */}
+            {/* Hamburger / Close Menu Button (mobile only) */}
             <button
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden flex items-center justify-center h-9 w-9 text-slate-300 hover:text-white transition-colors"
-              aria-label="Open mobile menu"
+              aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              <Menu className="h-5 w-5" />
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
 
             {/* Logo */}
@@ -180,7 +212,7 @@ export default function NavbarBottomTier() {
 
               {user ? (
                 <button
-                  onClick={handleLogout}
+                  onClick={() => setLogoutConfirmOpen(true)}
                   className="h-9 bg-slate-700 text-white font-bold px-2 sm:px-4 rounded-lg border-b-[3px] border-slate-800 active:border-b-0 active:translate-y-1 hover:bg-slate-600 transition-all flex items-center gap-2 text-sm"
                 >
                   <LogIn className="h-4 w-4" />
@@ -212,177 +244,109 @@ export default function NavbarBottomTier() {
         </div>
       </div>
 
-      {/* Full-screen Mobile Menu Overlay via Portal */}
+      {/* Full-screen Mobile Menu Overlay via Portal starting directly below navbar */}
       {mounted && mobileMenuOpen && createPortal(
-        <div className="md:hidden fixed inset-0 z-[100] bg-[#111827] text-foreground flex flex-col justify-between p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="flex flex-col gap-5">
-            {/* Top Bar with Logo & Close Button */}
-            <div className="flex items-center justify-between pb-3 border-b border-border/50">
-              <Link 
-                href="/" 
-                onClick={() => setMobileMenuOpen(false)} 
-                className="flex items-center gap-1.5"
-              >
-                <img
-                  src="/icon.svg"
-                  alt="CoinWeton Icon"
-                  className="h-9 w-auto"
-                />
-                <img
-                  src="/text5.svg"
-                  alt="CoinWeton Text"
-                  className="h-8 w-auto translate-y-[3px]"
-                />
-              </Link>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-                aria-label="Close menu"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            {/* Quick Search Trigger */}
+        <div
+          style={{ top: navBottom > 0 ? `${navBottom}px` : "57px" }}
+          className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-[#111827] text-foreground flex flex-col justify-start px-5 py-6 overflow-y-auto animate-in slide-in-from-left duration-300 ease-out"
+        >
+          <nav className="flex flex-col gap-2">
             <button
-              type="button"
               onClick={() => {
+                handleScrollTo("market");
                 setMobileMenuOpen(false);
-                setMobileSearchOpen(true);
               }}
-              className="relative flex w-full items-center h-11 px-3.5 rounded-xl border border-border bg-card text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all text-left group"
+              className={`flex items-center justify-between text-left text-base font-semibold px-4 py-3.5 rounded-xl transition-all ${
+                pathname === "/"
+                  ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+              }`}
             >
-              <Search className="h-4 w-4 mr-2.5 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span>Search coins...</span>
+              <span>Market</span>
             </button>
-
-            {/* Navigation Links */}
-            <nav className="flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  handleScrollTo("market");
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center justify-between text-left text-base font-semibold px-4 py-3 rounded-xl transition-all ${
-                  pathname === "/"
-                    ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/60"
-                }`}
-              >
-                <span>Market</span>
-              </button>
-              <Link
-                href="/news"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-base font-semibold px-4 py-3 rounded-xl transition-all ${
-                  pathname === "/news"
-                    ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/60"
-                }`}
-              >
-                <span>News</span>
-              </Link>
-              <Link
-                href="/cown-ai"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-base font-semibold px-4 py-3 rounded-xl transition-all ${
-                  pathname === "/cown-ai"
-                    ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/60"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span>Cown AI</span>
-                  <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.7)]" />
-                </div>
-                <span className="text-xs uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-[#00E5FF]">
-                  AI Bot
-                </span>
-              </Link>
-              <Link
-                href="/watchlist"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-base font-semibold px-4 py-3 rounded-xl transition-all ${
-                  pathname === "/watchlist"
-                    ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/60"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span>Watchlist</span>
-                </div>
-                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              </Link>
-            </nav>
-          </div>
-
-          {/* Bottom Auth Section */}
-          <div className="pt-6 mt-6 border-t border-border/50">
-            {user ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 px-2 py-1">
-                  {user.image ? (
-                    <img
-                      src={user.image}
-                      alt={user.name || "User"}
-                      className="h-10 w-10 rounded-full border border-border"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-bold text-[#00E5FF] border border-border">
-                      {user.name?.[0] || user.email?.[0] || "U"}
-                    </div>
-                  )}
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-sm font-semibold text-white truncate">
-                      {user.name || "User"}
-                    </span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      {user.email || ""}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full h-11 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2 text-sm"
-                >
-                  <LogIn className="h-4 w-4 rotate-180 text-rose-400" />
-                  <span>Log Out</span>
-                </button>
+            <Link
+              href="/news"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-between text-base font-semibold px-4 py-3.5 rounded-xl transition-all ${
+                pathname === "/news"
+                  ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <span>News</span>
+            </Link>
+            <Link
+              href="/cown-ai"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-between text-base font-semibold px-4 py-3.5 rounded-xl transition-all ${
+                pathname === "/cown-ai"
+                  ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>Cown AI</span>
+                <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.7)]" />
               </div>
-            ) : (
-              <div className="flex flex-col gap-2.5">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setLoginOpen(true);
-                  }}
-                  className="w-full h-11 bg-[#00E5FF] hover:bg-cyan-300 text-slate-900 font-bold rounded-xl border-b-[3px] border-[#0099cc] active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm shadow-[0_0_15px_rgba(0,229,255,0.2)]"
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>Login</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setLoginOpen(true);
-                  }}
-                  className="w-full h-11 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2 text-sm"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  <span>Sign Up</span>
-                </button>
+              <span className="text-xs uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-[#00E5FF]">
+                AI Bot
+              </span>
+            </Link>
+            <Link
+              href="/watchlist"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-between text-base font-semibold px-4 py-3.5 rounded-xl transition-all ${
+                pathname === "/watchlist"
+                  ? "text-[#00E5FF] bg-[#00E5FF]/10 font-bold"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>Watchlist</span>
               </div>
-            )}
-          </div>
+              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+            </Link>
+          </nav>
         </div>,
         document.body
       )}
 
       {/* Shared Login/Signup Modal */}
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+
+      {/* Logout Confirmation Modal */}
+      <Dialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
+        <DialogContent className="sm:max-w-[420px] border-slate-700/60 bg-slate-900 p-6">
+          <DialogHeader className="items-center text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-400 mb-2">
+              <LogIn className="h-6 w-6 rotate-180" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-white">
+              Log Out Confirmation
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-400">
+              Are you sure you want to log out of your CoinWeton account?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setLogoutConfirmOpen(false)}
+              className="flex-1 h-10 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-medium hover:bg-slate-700 hover:text-white transition-all text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex-1 h-10 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-all text-sm"
+            >
+              Log Out
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
