@@ -245,10 +245,15 @@ export default function NavbarBottomTier() {
       </div>
 
       {/* Full-screen Mobile Menu Overlay via Portal starting directly below navbar */}
-      {mounted && mobileMenuOpen && createPortal(
+      {mounted && createPortal(
         <div
           style={{ top: navBottom > 0 ? `${navBottom}px` : "57px" }}
-          className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-[#111827] text-foreground flex flex-col justify-start px-5 py-6 overflow-y-auto animate-in slide-in-from-left duration-300 ease-out"
+          aria-hidden={!mobileMenuOpen}
+          className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-[#111827] text-foreground flex flex-col justify-start px-5 py-6 overflow-y-auto transition-transform duration-300 ease-out ${
+            mobileMenuOpen
+              ? "translate-x-0 pointer-events-auto"
+              : "-translate-x-full pointer-events-none"
+          }`}
         >
           <nav className="flex flex-col gap-2">
             <button
@@ -288,9 +293,6 @@ export default function NavbarBottomTier() {
                 <span>Cown AI</span>
                 <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.7)]" />
               </div>
-              <span className="text-xs uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-[#00E5FF]">
-                AI Bot
-              </span>
             </Link>
             <Link
               href="/watchlist"
