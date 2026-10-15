@@ -35,7 +35,7 @@ function AuthStatusHandler() {
 
 export default function Navbar() {
   return (
-    <header className="relative z-50">
+    <header className="sticky top-0 z-50">
       <Suspense fallback={null}>
         <AuthStatusHandler />
       </Suspense>
